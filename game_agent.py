@@ -34,8 +34,18 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    opponent = game.get_opponent(player)
+    player_moves = len(game.get_legal_moves(player))
+    opponent_moves = len(game.get_legal_moves(opponent))
+    score = player_moves - 2 * opponent_moves
+    return float(score)
 
 
 def custom_score_2(game, player):
@@ -60,8 +70,17 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    player_moves = len(game.get_legal_moves(player))
+    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    score = (player_moves - opponent_moves) / (player_moves + opponent_moves)
+    return float(score)
 
 
 def custom_score_3(game, player):
@@ -86,8 +105,18 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+
+    if game.is_loser(player):
+        return float("-inf")
+
+    if game.is_winner(player):
+        return float("inf")
+
+    player_moves = len(game.get_legal_moves(player))
+    opponent_moves = len(game.get_legal_moves(game.get_opponent(player)))
+    score = - opponent_moves / (player_moves + opponent_moves)
+    return float(score)
+
 
 
 class IsolationPlayer:
@@ -368,7 +397,7 @@ class AlphaBetaPlayer(IsolationPlayer):
         best_move = (-1, -1)
         if not bool(legal_moves):
             return best_move
-        
+
         for move in legal_moves:
             temp_board = game.forecast_move(move)
             score = self.min_value_ab(temp_board, depth - 1, alpha, beta)

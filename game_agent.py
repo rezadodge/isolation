@@ -213,7 +213,6 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
         default_score = float("-inf")
         default_move = (-1, -1)
         moves = [default_move]
@@ -307,7 +306,15 @@ class AlphaBetaPlayer(IsolationPlayer):
         self.time_left = time_left
 
         # TODO: finish this function!
-        raise NotImplementedError
+        best_move = (-1, -1)
+        depth = 1
+        while True:
+            try:
+                best_move = self.alphabeta(game, depth)
+                depth += 1
+            except SearchTimeout:
+                break
+        return best_move
 
     def alphabeta(self, game, depth, alpha=float("-inf"), beta=float("inf")):
         """Implement depth-limited minimax search with alpha-beta pruning as
@@ -354,8 +361,69 @@ class AlphaBetaPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
+
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        default_score = float("-inf")
+        default_move = (-1, -1)
+        moves = [default_move]
+        scores = [default_score]
+        legal_moves = game.get_legal_moves()
+        # random.shuffle(legal_moves)
+
+        for move in legal_moves:
+            moves.append(move)
+            score = self.min_value_ab(game.forecast_move(move), depth - 1, alpha, beta)
+            scores.append(score)
+        # best_score = max(scores)
+        # best_indices = [i for i, s in enumerate(scores) if s == best_score]
+        # index = random.choice(best_indices)
+        index = scores.index(max(scores))
+        return moves[index]
+
+    def min_value_ab(self, game, depth, alpha, beta):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth <= 0:
+            return self.score(game, game.inactive_player)
+
+        # Find available legal moves and shuffle them
+        legal_moves = game.get_legal_moves()
+        # random.shuffle(legal_moves)
+
+        # if legal_moves is not empty find the best value and return it, else return the utility function
+        if bool(legal_moves):
+            min_value = float("inf")  # should this be beta?
+            for move in legal_moves:
+                min_value = min(min_value, self.max_value_ab(game.forecast_move(move), depth - 1, alpha, beta))
+                if min_value <= alpha:
+                    return min_value
+                beta = min(beta, min_value)
+            return min_value
+        else:
+            return game.utility(game.inactive_player)
+
+    def max_value_ab(self, game, depth, alpha, beta):
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth <= 0:
+            return self.score(game, game.active_player)
+
+        # Find available legal moves and shuffle them
+        legal_moves = game.get_legal_moves()
+        # random.shuffle(legal_moves)
+
+        # if legal_moves is not empty find the best value and return it, else return the utility function
+        if bool(legal_moves):
+            max_value = float("-inf")
+            for move in legal_moves:
+                max_value = max(max_value, self.min_value_ab(game.forecast_move(move), depth - 1, alpha, beta))
+                if max_value >= beta:
+                    return max_value
+                alpha = max(alpha, max_value)
+            return max_value
+        else:
+            return game.utility(game.active_player)

@@ -1,3 +1,7 @@
+# compressed and binary files
+*.zip
+*.docx
+
 # pycharm checkpoint
 .idea
 
